@@ -1,8 +1,11 @@
 "use client";
 
 import { apiFetch } from "@/lib/backend/client";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+    const router = useRouter();
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -34,7 +37,10 @@ export default function Page() {
                 content: content.value,
             }),
         })
-        .then((data) => alert(data.msg));
+        .then((data) => {
+            alert(data.msg);
+            router.push(`/posts/${data.id}`);
+        });
     };
 
     return (
@@ -42,9 +48,9 @@ export default function Page() {
             <h1>글쓰기</h1>
 
             <form className="flex flex-col gap-2 p-2" onSubmit={handleSubmit}>
-                <input className="border rounded p-2" type="text" name="title" placeholder="제목" />
+                <input className="border rounded p-2" type="text" name="title" placeholder="제목" autoFocus />
                 <textarea className="border rounded p-2" name="content" placeholder="내용" />
-                <button className="border rounded p-2" type="submit">저장</button>
+                <button className="border rounded p-2 cursor-pointer" type="submit">저장</button>
             </form>
         </>
     );
