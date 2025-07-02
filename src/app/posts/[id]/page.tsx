@@ -16,7 +16,7 @@ function usePost(id: number) {
         alert(`${error.resultCode} : ${error.msg}`);
       });
   }, []);
-  
+
   const deletePost = (id: number, onSuccess: () => void) => {
     apiFetch(`/api/v1/posts/${id}`, {
       method: "DELETE",
@@ -65,10 +65,16 @@ function usePostComments(id: number) {
 
 function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
   const router = useRouter();
-  const { post, deletePost } = postState;
+  const { post, deletePost: _deletePost } = postState;
 
   if (post == null) {
     return <div>로딩중...</div>;
+  }
+
+  const deletePost = () => {
+    if (!confirm(`${post.id}번 글을 정말 삭제하시겠습니까?`)) return;
+
+    _deletePost(post.id, () => router.replace("/posts"));
   }
 
   return (
@@ -79,8 +85,7 @@ function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
 
       <div className="flex gap-2">
         <button className="border rounded p-2 cursor-pointer"
-          onClick={() => confirm(`${post.id}번 글을 정말 삭제하시겠습니까?`) 
-          && deletePost(post.id, () => router.replace("/posts"))}>삭제</button>
+          onClick={deletePost}>삭제</button>
         <Link className="border rounded p-2" href={`/posts/${post.id}/edit`}>수정</Link>
       </div>
     </>
@@ -91,10 +96,18 @@ function PostCommentWriteAndList({ id, postCommentsState }: {
   id: number;
   postCommentsState: ReturnType<typeof usePostComments>;
 }) {
-  const { postComments, deleteComment, writeComment } = postCommentsState;
+  const { postComments, deleteComment: _deleteComment, writeComment } = postCommentsState;
 
   if (postComments == null) {
     return <div>로딩중...</div>;
+  }
+
+  const deleteComment = (commentId: number) => {
+    if (!confirm(`${commentId}번 댓글을 정말 삭제하시겠습니까?`)) return;
+    
+    _deleteComment(commentId, (data) => {
+      alert(data.msg);
+    });
   }
 
   const handleCommentWriteFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -139,10 +152,7 @@ function PostCommentWriteAndList({ id, postCommentsState }: {
             <li key={comment.id}>
               {comment.id} : {comment.content}
               <button className="border rounded p-2 cursor-pointer"
-                onClick={() => confirm(`${comment.id}번 댓글을 정말 삭제하시겠습니까?`) 
-                && deleteComment(comment.id, (data) => {
-                  alert(data.msg);
-                })}>삭제</button>
+                onClick={() => deleteComment(comment.id)}>삭제</button>
             </li>
           ))}
         </ul>
@@ -157,13 +167,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   const postState = usePost(id);
   const postCommentsState = usePostComments(id);
-  
+
   return (
     <>
       <h1>글 상세페이지</h1>
 
       <PostInfo postState={postState} />
-      
+
       <PostCommentWriteAndList id={id} postCommentsState={postCommentsState} />
     </>
   );
