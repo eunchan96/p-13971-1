@@ -27,6 +27,9 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
       method: "DELETE",
     }).then((data) => {
       alert(data.msg);
+      if(postComments != null) {
+        setPostComments(postComments.filter((comment) => comment.id !== commentId));
+      }
     });
   }
 
