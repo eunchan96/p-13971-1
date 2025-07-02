@@ -39,7 +39,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
       <div className="flex gap-2">
         <button className="border rounded p-2 cursor-pointer" 
           onClick={() => confirm(`${post.id}번 글을 정말 삭제하시겠습니까?`) && deletePost(post.id)}>삭제</button>
-        <Link className="border rounded p-2" href={`/posts/${post.id}/modify`}>수정</Link>
+        <Link className="border rounded p-2" href={`/posts/${post.id}/edit`}>수정</Link>
       </div>
     </>
   );
