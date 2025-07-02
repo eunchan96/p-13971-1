@@ -1,15 +1,15 @@
-export interface PostDto {
+export type PostDto = {
     id: number;
     createDate: string;
     modifyDate: string;
     title: string;
 }
 
-export interface PostWithContentDto extends PostDto {
+export type PostWithContentDto = PostDto & {
     content: string;
 }
 
-export interface PostCommentDto {
+export type PostCommentDto = {
     id: number;
     createDate: string;
     modifyDate: string;
