@@ -26,6 +26,43 @@ function usePost(id: number) {
   return { post, deletePost };
 }
 
+function usePostComments(id: number) {
+  const [postComments, setPostComments] = useState<PostCommentDto[] | null>(null);
+
+  useEffect(() => {
+    apiFetch(`/api/v1/posts/${id}/comments`)
+      .then(setPostComments)
+      .catch((error) => {
+        alert(`${error.resultCode} : ${error.msg}`);
+      });
+  }, []);
+
+  const deleteComment = (commentId: number, onSuccess: (data: any) => void) => {
+    apiFetch(`/api/v1/posts/${id}/comments/${commentId}`, {
+      method: "DELETE",
+    }).then((data) => {
+      if (postComments == null) return;
+      setPostComments(postComments.filter((comment) => comment.id !== commentId));
+
+      onSuccess(data);
+    });
+  }
+
+  const writeComment = (id: number, content: string, onSuccess: (data: any) => void) => {
+    apiFetch(`/api/v1/posts/${id}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }).then((data) => {
+      if (postComments == null) return;
+      setPostComments([...postComments, data.data]);
+
+      onSuccess(data);
+    });
+  }
+
+  return { postComments, deleteComment, writeComment };
+}
+
 function PostInfo({ post, deletePost }: { post: PostWithContentDto, deletePost: (id: number, onSuccess: () => void) => void }) {
   const router = useRouter();
 
@@ -46,23 +83,13 @@ function PostInfo({ post, deletePost }: { post: PostWithContentDto, deletePost: 
 }
 
 function PostCommentWriteAndList({
-  id, postComments, setPostComments,
+  id, postComments, deleteComment, writeComment,
 }: {
   id: number;
   postComments: PostCommentDto[] | null;
-  setPostComments: (postComments: PostCommentDto[]) => void;
+  deleteComment: (commentId: number, onSuccess: (data: any) => void) => void;
+  writeComment: (id: number, content: string, onSuccess: (data: any) => void) => void;
 }) {
-  const deleteComment = (commentId: number) => {
-    apiFetch(`/api/v1/posts/${id}/comments/${commentId}`, {
-      method: "DELETE",
-    }).then((data) => {
-      alert(data.msg);
-
-      if (postComments == null) return;
-      setPostComments(postComments.filter((comment) => comment.id !== commentId));
-    });
-  }
-
   const handleCommentWriteFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -82,17 +109,9 @@ function PostCommentWriteAndList({
       return;
     }
 
-    apiFetch(`/api/v1/posts/${id}/comments`, {
-      method: "POST",
-      body: JSON.stringify({
-        content: content.value,
-      }),
-    }).then((data) => {
+    writeComment(id, content.value, (data) => {
       alert(data.msg);
       content.value = "";
-
-      if (postComments == null) return;
-      setPostComments([...postComments, data.data]);
     });
   };
 
@@ -113,7 +132,10 @@ function PostCommentWriteAndList({
             <li key={comment.id}>
               {comment.id} : {comment.content}
               <button className="border rounded p-2 cursor-pointer"
-                onClick={() => confirm(`${comment.id}번 댓글을 정말 삭제하시겠습니까?`) && deleteComment(comment.id)}>삭제</button>
+                onClick={() => confirm(`${comment.id}번 댓글을 정말 삭제하시겠습니까?`) 
+                && deleteComment(comment.id, (data) => {
+                  alert(data.msg);
+                })}>삭제</button>
             </li>
           ))}
         </ul>
@@ -126,16 +148,8 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
 
   const { post, deletePost } = usePost(id);
-
-  const [postComments, setPostComments] = useState<PostCommentDto[] | null>(null);
-
-  useEffect(() => {
-    apiFetch(`/api/v1/posts/${id}/comments`)
-      .then(setPostComments)
-      .catch((error) => {
-        alert(`${error.resultCode} : ${error.msg}`);
-      });
-  }, []);
+  const { postComments, deleteComment, writeComment } = usePostComments(id);
+  
 
   if (post == null) {
     return <div>로딩중...</div>;
@@ -147,7 +161,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
 
       <PostInfo post={post} deletePost={deletePost} />
       
-      <PostCommentWriteAndList id={id} postComments={postComments} setPostComments={setPostComments} />
+      <PostCommentWriteAndList id={id} postComments={postComments} deleteComment={deleteComment} writeComment={writeComment} />
     </>
   );
 }
