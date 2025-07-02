@@ -92,23 +92,11 @@ function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
   );
 }
 
-function PostCommentWriteAndList({ id, postCommentsState }: {
+function PostCommentWrite({ id, postCommentsState }: {
   id: number;
   postCommentsState: ReturnType<typeof usePostComments>;
 }) {
-  const { postComments, deleteComment: _deleteComment, writeComment } = postCommentsState;
-
-  if (postComments == null) {
-    return <div>로딩중...</div>;
-  }
-
-  const deleteComment = (commentId: number) => {
-    if (!confirm(`${commentId}번 댓글을 정말 삭제하시겠습니까?`)) return;
-    
-    _deleteComment(commentId, (data) => {
-      alert(data.msg);
-    });
-  }
+  const { writeComment } = postCommentsState;
 
   const handleCommentWriteFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -136,13 +124,28 @@ function PostCommentWriteAndList({ id, postCommentsState }: {
   };
 
   return (
-    <>
-      <h2>댓글 작성</h2>
-      <form className="flex flex-col gap-2 p-2" onSubmit={handleCommentWriteFormSubmit}>
-        <textarea className="border rounded p-2" name="content" placeholder="댓글 내용" maxLength={5000} rows={5} />
-        <button className="border rounded p-2 cursor-pointer" type="submit">작성</button>
-      </form>
+    <form className="flex flex-col gap-2 p-2" onSubmit={handleCommentWriteFormSubmit}>
+      <textarea className="border rounded p-2" name="content" placeholder="댓글 내용" maxLength={5000} rows={5} />
+      <button className="border rounded p-2 cursor-pointer" type="submit">작성</button>
+    </form>
+  );
+}
 
+function PostCommentList({ postCommentsState }: {
+  postCommentsState: ReturnType<typeof usePostComments>;
+}) {
+  const { postComments, deleteComment: _deleteComment } = postCommentsState;
+
+  const deleteComment = (commentId: number) => {
+    if (!confirm(`${commentId}번 댓글을 정말 삭제하시겠습니까?`)) return;
+
+    _deleteComment(commentId, (data) => {
+      alert(data.msg);
+    });
+  }
+
+  return (
+    <>
       <h2>댓글 목록</h2>
       {postComments == null && <div>댓글 로딩중...</div>}
       {postComments != null && postComments.length === 0 && <div>댓글이 없습니다.</div>}
@@ -157,6 +160,24 @@ function PostCommentWriteAndList({ id, postCommentsState }: {
           ))}
         </ul>
       )}
+    </>
+  );
+}
+
+function PostCommentWriteAndList({ id, postCommentsState }: {
+  id: number;
+  postCommentsState: ReturnType<typeof usePostComments>;
+}) {
+  const { postComments } = postCommentsState;
+
+  if (postComments == null) {
+    return <div>로딩중...</div>;
+  }
+
+  return (
+    <>
+      <PostCommentWrite id={id} postCommentsState={postCommentsState} />
+      <PostCommentList id={id} postCommentsState={postCommentsState} />
     </>
   );
 }
