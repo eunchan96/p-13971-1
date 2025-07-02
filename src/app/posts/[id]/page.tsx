@@ -27,9 +27,9 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
       method: "DELETE",
     }).then((data) => {
       alert(data.msg);
-      if(postComments != null) {
-        setPostComments(postComments.filter((comment) => comment.id !== commentId));
-      }
+
+      if(postComments == null) return;
+      setPostComments(postComments.filter((comment) => comment.id !== commentId));
     });
   }
 
@@ -55,9 +55,8 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
       alert(data.msg);
       content.value = "";
 
-      if(postComments != null) {
-        setPostComments([...postComments, data.data]);
-      }
+      if(postComments == null) return;
+      setPostComments([...postComments, data.data]);
     });
   };
 
@@ -97,7 +96,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
         <ul>
           {postComments.map((comment) => (
             <li key={comment.id}>
-              {comment.content}
+              {comment.id} : {comment.content}
               <button className="border rounded p-2 cursor-pointer" 
                 onClick={() => confirm(`${comment.id}번 댓글을 정말 삭제하시겠습니까?`) && deleteComment(comment.id)}>삭제</button>
             </li>
