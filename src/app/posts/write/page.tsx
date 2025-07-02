@@ -1,5 +1,7 @@
 "use client";
 
+import { apiFetch } from "@/lib/backend/client";
+
 export default function Page() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -25,17 +27,13 @@ export default function Page() {
             return;
         }
 
-        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/posts`, {
+        apiFetch(`/api/v1/posts`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-            },
             body: JSON.stringify({
                 title: title.value,
                 content: content.value,
             }),
         })
-        .then((res) => res.json())
         .then((data) => alert(data.msg));
     };
 
