@@ -177,7 +177,7 @@ function PostCommentWriteAndList({ id, postCommentsState }: {
   return (
     <>
       <PostCommentWrite id={id} postCommentsState={postCommentsState} />
-      <PostCommentList id={id} postCommentsState={postCommentsState} />
+      <PostCommentList postCommentsState={postCommentsState} />
     </>
   );
 }
