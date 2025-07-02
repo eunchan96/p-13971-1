@@ -46,6 +46,12 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
       return;
     }
 
+    if(content.value.length < 2) {
+      alert("댓글 내용을 2자 이상 입력해주세요.");
+      content.focus();
+      return;
+    }
+
     apiFetch(`/api/v1/posts/${id}/comments`, {
       method: "POST",
       body: JSON.stringify({
@@ -85,7 +91,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
 
       <h2>댓글 작성</h2>
       <form className="flex flex-col gap-2 p-2" onSubmit={handleCommentWriteFormSubmit}>
-        <textarea className="border rounded p-2" name="content" placeholder="댓글 내용" />
+        <textarea className="border rounded p-2" name="content" placeholder="댓글 내용" maxLength={5000} rows={5} />
         <button className="border rounded p-2 cursor-pointer" type="submit">작성</button>
       </form>
 
