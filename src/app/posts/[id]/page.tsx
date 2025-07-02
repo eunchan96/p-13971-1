@@ -67,8 +67,17 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
   };
 
   useEffect(() => {
-    apiFetch(`/api/v1/posts/${id}`).then(setPost);
-    apiFetch(`/api/v1/posts/${id}/comments`).then(setPostComments);
+    apiFetch(`/api/v1/posts/${id}`)
+    .then(setPost)
+    .catch((error) => {
+      alert(error.message);
+    });
+
+    apiFetch(`/api/v1/posts/${id}/comments`)
+    .then(setPostComments)
+    .catch((error) => {
+      alert(error.message);
+    });
   }, []);
 
   if (post == null) {
