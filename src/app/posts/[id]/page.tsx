@@ -63,8 +63,13 @@ function usePostComments(id: number) {
   return { postComments, deleteComment, writeComment };
 }
 
-function PostInfo({ post, deletePost }: { post: PostWithContentDto, deletePost: (id: number, onSuccess: () => void) => void }) {
+function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
   const router = useRouter();
+  const { post, deletePost } = postState;
+
+  if (post == null) {
+    return <div>로딩중...</div>;
+  }
 
   return (
     <>
@@ -82,14 +87,16 @@ function PostInfo({ post, deletePost }: { post: PostWithContentDto, deletePost: 
   );
 }
 
-function PostCommentWriteAndList({
-  id, postComments, deleteComment, writeComment,
-}: {
+function PostCommentWriteAndList({ id, postCommentsState }: {
   id: number;
-  postComments: PostCommentDto[] | null;
-  deleteComment: (commentId: number, onSuccess: (data: any) => void) => void;
-  writeComment: (id: number, content: string, onSuccess: (data: any) => void) => void;
+  postCommentsState: ReturnType<typeof usePostComments>;
 }) {
+  const { postComments, deleteComment, writeComment } = postCommentsState;
+
+  if (postComments == null) {
+    return <div>로딩중...</div>;
+  }
+
   const handleCommentWriteFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -147,22 +154,17 @@ function PostCommentWriteAndList({
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id: idStr } = use(params);
   const id = parseInt(idStr);
-  
-  const { post, deletePost } = usePost(id);
-  const { postComments, deleteComment, writeComment } = usePostComments(id);
-  
 
-  if (post == null) {
-    return <div>로딩중...</div>;
-  }
-
+  const postState = usePost(id);
+  const postCommentsState = usePostComments(id);
+  
   return (
     <>
       <h1>글 상세페이지</h1>
 
-      <PostInfo post={post} deletePost={deletePost} />
+      <PostInfo postState={postState} />
       
-      <PostCommentWriteAndList id={id} postComments={postComments} deleteComment={deleteComment} writeComment={writeComment} />
+      <PostCommentWriteAndList id={id} postCommentsState={postCommentsState} />
     </>
   );
 }
