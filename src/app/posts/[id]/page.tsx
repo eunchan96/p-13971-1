@@ -3,14 +3,14 @@
 import type { PostWithContentDto } from "@/type/post";
 import { use, useEffect, useState } from "react";
 
+const NEXT_PUBLIC_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function Page({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
   const [post, setPost] = useState<PostWithContentDto | null>(null);
 
-  const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   useEffect(() => {
-    fetch(`${NEXT_PUBLIC_API_URL}/api/v1/posts/${id}`)
+    fetch(`${NEXT_PUBLIC_API_BASE_URL}/api/v1/posts/${id}`)
       .then((res) => res.json())
       .then(setPost);
   }, []);
