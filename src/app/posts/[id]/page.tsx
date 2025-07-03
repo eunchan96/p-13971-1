@@ -135,7 +135,7 @@ function PostCommentWrite({ postCommentsState }: {
   };
 
   return (
-    <form className="flex flex-col gap-2 p-2" onSubmit={handleCommentWriteFormSubmit}>
+    <form className="flex gap-2 p-2 items-center" onSubmit={handleCommentWriteFormSubmit}>
       <textarea className="border rounded p-2" name="content" placeholder="댓글 내용" maxLength={5000} rows={5} />
       <button className="border rounded p-2 cursor-pointer" type="submit">작성</button>
     </form>
@@ -209,12 +209,12 @@ function PostCommentListItem({ comment, postCommentsState }: {
   }
   
   return (
-    <li className="flex gap-2 items-center">
+    <li className="flex gap-2 items-start">
       <span>{comment.id} : </span>
       {!editMode ? (
-        <span>{comment.content}</span>
+        <span className="whitespace-pre-line">{comment.content}</span>
       ) : (
-        <form className="flex gap-2 items-center" onSubmit={handleCommentEditFormSubmit}>
+        <form className="flex gap-2 items-start" onSubmit={handleCommentEditFormSubmit}>
           <textarea className="border rounded p-2" name="content" defaultValue={comment.content} placeholder="댓글 내용" maxLength={100} rows={5} autoFocus />
           <button className="border rounded p-2 cursor-pointer" type="submit">저장</button>
         </form>
