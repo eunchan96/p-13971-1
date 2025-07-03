@@ -141,7 +141,7 @@ function PostCommentList({ postCommentsState }: {
       {postComments == null && <div>댓글 로딩중...</div>}
       {postComments != null && postComments.length === 0 && <div>댓글이 없습니다.</div>}
       {postComments != null && postComments.length > 0 && (
-        <ul>
+        <ul className="mt-2 flex flex-col gap-2">
           {postComments.map((comment) => (
             <PostCommentListItem key={comment.id} comment={comment} postCommentsState={postCommentsState} />
           ))}
@@ -155,6 +155,8 @@ function PostCommentListItem({ comment, postCommentsState }: {
   comment: PostCommentDto;
   postCommentsState: ReturnType<typeof usePostComments>;
 }) {
+  const [editMode, setEditMode] = useState(false);
+
   const { deleteComment: _deleteComment } = postCommentsState;
 
   const deleteComment = (commentId: number) => {
@@ -165,9 +167,24 @@ function PostCommentListItem({ comment, postCommentsState }: {
     });
   }
 
+  const toggleEditComment = () => {
+    setEditMode(!editMode);
+  }
+
   return (
-    <li>
-      {comment.id} : {comment.content}
+    <li className="flex gap-2 items-center">
+      <span>{comment.id} : </span>
+      {!editMode ? (
+        <span>{comment.content}</span>
+      ) : (
+        <form className="flex gap-2 items-center" onSubmit={(e) => e.preventDefault()}>
+          <textarea className="border rounded p-2" name="content" defaultValue={comment.content} placeholder="댓글 내용" maxLength={100} rows={5} />
+          <button className="border rounded p-2 cursor-pointer" type="submit">저장</button>
+        </form>
+      )}
+      <button className="border rounded p-2 cursor-pointer" onClick={toggleEditComment}>
+        {editMode ? "수정취소" : "수정"}
+      </button>
       <button className="border rounded p-2 cursor-pointer"
         onClick={() => deleteComment(comment.id)}>삭제</button>
     </li>
