@@ -17,7 +17,7 @@ function usePost(id: number) {
       });
   }, []);
 
-  const deletePost = (id: number, onSuccess: () => void) => {
+  const deletePost = (onSuccess: () => void) => {
     apiFetch(`/api/v1/posts/${id}`, {
       method: "DELETE",
     }).then(onSuccess);
@@ -86,7 +86,7 @@ function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
   const deletePost = () => {
     if (!confirm(`${post.id}번 글을 정말 삭제하시겠습니까?`)) return;
 
-    _deletePost(post.id, () => router.replace("/posts"));
+    _deletePost(() => router.replace("/posts"));
   }
 
   return (
