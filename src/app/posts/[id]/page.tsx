@@ -60,7 +60,19 @@ function usePostComments(postId: number) {
     });
   }
 
-  return { postId, postComments, deleteComment, writeComment };
+  const editComment = (commentId: number, content: string, onSuccess: (data: any) => void) => {
+    apiFetch(`/api/v1/posts/${postId}/comments/${commentId}`, {
+      method: "PUT",
+      body: JSON.stringify({ content }),
+    }).then((data) => {
+      if (postComments == null) return;
+      setPostComments(postComments.map((comment) => comment.id === commentId ? { ...comment, content } : comment));
+
+      onSuccess(data);
+    });
+  }
+
+  return { postId, postComments, deleteComment, writeComment, editComment };
 }
 
 function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
@@ -157,7 +169,7 @@ function PostCommentListItem({ comment, postCommentsState }: {
 }) {
   const [editMode, setEditMode] = useState(false);
 
-  const { deleteComment: _deleteComment } = postCommentsState;
+  const { deleteComment: _deleteComment, editComment } = postCommentsState;
 
   const deleteComment = (commentId: number) => {
     if (!confirm(`${commentId}번 댓글을 정말 삭제하시겠습니까?`)) return;
@@ -171,14 +183,39 @@ function PostCommentListItem({ comment, postCommentsState }: {
     setEditMode(!editMode);
   }
 
+  const handleCommentEditFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+
+    const content = form.elements.namedItem("content") as HTMLTextAreaElement;
+    content.value = content.value.trim();
+
+    if (content.value.length === 0) {
+      alert("댓글 내용을 입력해주세요.");
+      content.focus();
+      return;
+    }
+
+    if (content.value.length < 2) {
+      alert("댓글 내용을 2자 이상 입력해주세요.");
+      content.focus();
+      return;
+    }
+
+    editComment(comment.id, content.value, (data) => {
+      alert(data.msg);
+      toggleEditComment();
+    });
+  }
+  
   return (
     <li className="flex gap-2 items-center">
       <span>{comment.id} : </span>
       {!editMode ? (
         <span>{comment.content}</span>
       ) : (
-        <form className="flex gap-2 items-center" onSubmit={(e) => e.preventDefault()}>
-          <textarea className="border rounded p-2" name="content" defaultValue={comment.content} placeholder="댓글 내용" maxLength={100} rows={5} />
+        <form className="flex gap-2 items-center" onSubmit={handleCommentEditFormSubmit}>
+          <textarea className="border rounded p-2" name="content" defaultValue={comment.content} placeholder="댓글 내용" maxLength={100} rows={5} autoFocus />
           <button className="border rounded p-2 cursor-pointer" type="submit">저장</button>
         </form>
       )}
