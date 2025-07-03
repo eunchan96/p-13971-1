@@ -26,11 +26,11 @@ function usePost(id: number) {
   return { id, post, deletePost };
 }
 
-function usePostComments(id: number) {
+function usePostComments(postId: number) {
   const [postComments, setPostComments] = useState<PostCommentDto[] | null>(null);
 
   useEffect(() => {
-    apiFetch(`/api/v1/posts/${id}/comments`)
+    apiFetch(`/api/v1/posts/${postId}/comments`)
       .then(setPostComments)
       .catch((error) => {
         alert(`${error.resultCode} : ${error.msg}`);
@@ -38,7 +38,7 @@ function usePostComments(id: number) {
   }, []);
 
   const deleteComment = (commentId: number, onSuccess: (data: any) => void) => {
-    apiFetch(`/api/v1/posts/${id}/comments/${commentId}`, {
+    apiFetch(`/api/v1/posts/${postId}/comments/${commentId}`, {
       method: "DELETE",
     }).then((data) => {
       if (postComments == null) return;
@@ -49,7 +49,7 @@ function usePostComments(id: number) {
   }
 
   const writeComment = (content: string, onSuccess: (data: any) => void) => {
-    apiFetch(`/api/v1/posts/${id}/comments`, {
+    apiFetch(`/api/v1/posts/${postId}/comments`, {
       method: "POST",
       body: JSON.stringify({ content }),
     }).then((data) => {
@@ -60,7 +60,7 @@ function usePostComments(id: number) {
     });
   }
 
-  return { id, postComments, deleteComment, writeComment };
+  return { postId, postComments, deleteComment, writeComment };
 }
 
 function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
