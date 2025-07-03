@@ -23,7 +23,7 @@ function usePost(id: number) {
     }).then(onSuccess);
   };
 
-  return { post, deletePost };
+  return { id, post, deletePost };
 }
 
 function usePostComments(id: number) {
@@ -48,7 +48,7 @@ function usePostComments(id: number) {
     });
   }
 
-  const writeComment = (id: number, content: string, onSuccess: (data: any) => void) => {
+  const writeComment = (content: string, onSuccess: (data: any) => void) => {
     apiFetch(`/api/v1/posts/${id}/comments`, {
       method: "POST",
       body: JSON.stringify({ content }),
@@ -60,7 +60,7 @@ function usePostComments(id: number) {
     });
   }
 
-  return { postComments, deleteComment, writeComment };
+  return { id, postComments, deleteComment, writeComment };
 }
 
 function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
@@ -92,8 +92,7 @@ function PostInfo({ postState }: { postState: ReturnType<typeof usePost> }) {
   );
 }
 
-function PostCommentWrite({ id, postCommentsState }: {
-  id: number;
+function PostCommentWrite({ postCommentsState }: {
   postCommentsState: ReturnType<typeof usePostComments>;
 }) {
   const { writeComment } = postCommentsState;
@@ -117,7 +116,7 @@ function PostCommentWrite({ id, postCommentsState }: {
       return;
     }
 
-    writeComment(id, content.value, (data) => {
+    writeComment(content.value, (data) => {
       alert(data.msg);
       content.value = "";
     });
@@ -164,8 +163,7 @@ function PostCommentList({ postCommentsState }: {
   );
 }
 
-function PostCommentWriteAndList({ id, postCommentsState }: {
-  id: number;
+function PostCommentWriteAndList({ postCommentsState }: {
   postCommentsState: ReturnType<typeof usePostComments>;
 }) {
   const { postComments } = postCommentsState;
@@ -176,7 +174,7 @@ function PostCommentWriteAndList({ id, postCommentsState }: {
 
   return (
     <>
-      <PostCommentWrite id={id} postCommentsState={postCommentsState} />
+      <PostCommentWrite postCommentsState={postCommentsState} />
       <PostCommentList postCommentsState={postCommentsState} />
     </>
   );
@@ -195,7 +193,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       <PostInfo postState={postState} />
 
-      <PostCommentWriteAndList id={id} postCommentsState={postCommentsState} />
+      <PostCommentWriteAndList postCommentsState={postCommentsState} />
     </>
   );
 }

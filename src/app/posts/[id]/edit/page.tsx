@@ -36,10 +36,22 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             return;
         }
 
+        if(title.value.length < 2) {
+            alert("제목은 2자 이상 입력해주세요.");
+            title.focus();
+            return;
+        }
+
         content.value = content.value.trim();
 
         if(content.value.length === 0) {
             alert("내용을 입력해주세요.");
+            content.focus();
+            return;
+        }
+
+        if(content.value.length < 2) {
+            alert("내용은 2자 이상 입력해주세요.");
             content.focus();
             return;
         }
